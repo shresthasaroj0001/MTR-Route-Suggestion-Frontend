@@ -121,3 +121,7 @@ mat-sidenav {
 .mat-hint .mat-input-invalid .mat-input-ripple {
   background-color: red;
 }
+
+.mat-form-field-wrapper {
+  margin: 1.25em;
+}

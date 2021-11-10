@@ -26,11 +26,14 @@ import { MatSelectModule } from '@angular/material/select';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { SearchResultComponent } from './search-result/search-result.component';
+import { MatSnackBarModule} from '@angular/material/snack-bar';
 
 @NgModule({
-  declarations: [AppComponent, HomeComponent, NotFoundComponent],
+  declarations: [AppComponent, HomeComponent, NotFoundComponent, SearchResultComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [
+    MatSnackBarModule,
     BrowserModule,
     FormsModule,
     AppRoutingModule,

@@ -1,10 +1,12 @@
+import { ThrowStmt } from '@angular/compiler';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { FormControl, NgForm } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { DataManagerService } from '../data-manager.service';
+import { searchParams } from '../model/searchParams';
 import { Station } from '../model/Station';
 
 @Component({
@@ -19,6 +21,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   ) {}
 
   optionStations: Station[] = [];
+  loading: boolean = false;
 
   keywordfromcurrentStation: any;
   fromStationOptions: Station[] = [];
@@ -47,7 +50,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   doFilter() {
     this.fromStationId = 0;
     this.isValidfromStation = false;
-    console.log('hi ', this.keywordfromcurrentStation);
     this.fromStationOptions = this.optionStations.filter(
       (x) =>
         x.name.toLocaleLowerCase().includes(this.keywordfromcurrentStation) &&
@@ -63,6 +65,9 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.fromStationId = 0;
       this.isValidfromStation = false;
     } else this.isValidfromStation = true;
+    this.toStationOptions = this.toStationOptions.filter(
+      (x) => x.id != this.fromStationId
+    );
   }
 
   doFilterTo() {
@@ -83,6 +88,16 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.toStationId = 0;
       this.isValidToStation = false;
     } else this.isValidToStation = true;
+  }
+
+  onSubmit(f: NgForm): void {
+    if (this.fromStationId != this.toStationId) {
+      this.router.navigate(['/search'], {
+        queryParams: { from: this.fromStationId, to: this.toStationId },
+      });
+      this.fromStationId = 0;
+      this.toStationId = 0;
+    }
   }
 
   ngOnDestroy() {
