@@ -1,58 +1,41 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { DataManagerService } from '../data-manager.service';
-import { searchParams } from '../model/searchParams';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { responseObj } from '../model/responseObject';
+import { ActivatedRoute } from '@angular/router';
+import { DataManagerService } from '../data-manager.service';
 import { StationLink } from '../model/StationLink';
-import {
-  Edge,
-  Node,
-  Layout,
-  DagreNodesOnlyLayout,
-  ClusterNode,
-} from '@swimlane/ngx-graph';
+import { Edge, Node, Layout, DagreNodesOnlyLayout , ClusterNode } from '@swimlane/ngx-graph';
 import * as shape from 'd3-shape';
 import { Subject } from 'rxjs';
+import { responseObj } from '../model/responseObject';
 
 @Component({
-  selector: 'app-search-result',
-  templateUrl: './search-result.component.html',
-  styleUrls: ['./search-result.component.css'],
+  selector: 'app-route-connection',
+  templateUrl: './route-connection.component.html',
+  styleUrls: ['./route-connection.component.css']
 })
-export class SearchResultComponent implements OnInit {
-  searchParams: searchParams = { from: 0, to: 0, filterby: '' };
+export class RouteConnectionComponent implements OnInit {
+  center$: Subject<boolean> = new Subject();
   sub: any;
   loading: boolean = null;
 
+  centerGraph() {
+    this.center$.next(true)
+}
+
   zoomToFit$: Subject<boolean> = new Subject();
   fitGraph() {
-    this.zoomToFit$.next(true);
-  }
+    this.zoomToFit$.next(true)
+}
 
   constructor(
     private dataService: DataManagerService,
     private route: ActivatedRoute,
-    private routee: Router,
     private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
     this.loading = true;
-
-    try {
-      this.sub = this.route.queryParams.subscribe((params) => {
-        this.searchParams.from = params['from'] || 0;
-        this.searchParams.to = params['to'] || 0;
-        this.searchParams.filterby = params['filterby'] || '';
-
-        this.fetchData();
-      });
-    } catch (e) {
-      this.snackBar.open('Invalid Stations', 'Failed', {
-        duration: 1500,
-      });
-    }
+    this.fetchData();
   }
 
   public nodes: Node[] = [];
@@ -60,29 +43,21 @@ export class SearchResultComponent implements OnInit {
   stationLink: StationLink[] = [];
 
   public layoutSettings = {
-    orientation: 'TB',
+    orientation: 'TB'
   };
   public curve: any = shape.curveLinear;
   public layout: Layout = new DagreNodesOnlyLayout();
 
   //transport detail
-  numberOfSubwayInterchange: number = 0;
-  tempDate : Date = new Date(0, 0, 0, 0, 0, 0, 0);;//  date to store duration of travel
-  fare: number = 0;
-
-  convertHMS(timeString) {
-    const arr = timeString.split(':');
-    const seconds = arr[0] * 3600 + arr[1] * 60 + +arr[2];
-    return seconds;
-  }
+  numberOfSubwayInterchange:number=0;
+  durationOfTravel:number=0;
+  fare: number=0;
 
   fetchData() {
-    console.log(this.searchParams);
-    
     console.log('fetch');
     this.loading = true;
 
-    this.dataService.getRoute(this.searchParams).subscribe(
+    this.dataService.getAllRoute().subscribe(
       (response: responseObj) => {
         console.log(response);
 
@@ -92,16 +67,16 @@ export class SearchResultComponent implements OnInit {
           //collect edges,node,
           this.numberOfSubwayInterchange = 0;
           let subwayChange = 0;
-          let durationOfTravel = 0;//seconds
           for (const link of this.stationLink) {
             //duration
-            durationOfTravel += this.convertHMS(link.duration);
+            this.durationOfTravel+=link.duration.totalSeconds;
 
             //fare
             this.fare += link.fare;
 
             //subway interchange count
-            if (link.subwayLine != subwayChange) {
+            if(link.subwayLine != subwayChange)
+            {
               this.numberOfSubwayInterchange++;
               subwayChange = link.subwayLine;
             }
@@ -112,15 +87,14 @@ export class SearchResultComponent implements OnInit {
               target: link.toStationId.toString(),
               label: '',
               data: {
-                linkText: '$' + link.fare,
-              },
+                linkText: '$' +link.fare,
+              }
             };
             this.links.push(edge);
           }
-          this.tempDate.setSeconds(durationOfTravel);
 
           //creating node for graph
-          let tempNodes: Node[] = [];
+          let tempNodes : Node[]=[];
           response.data.forEach(function (arrayItem) {
             let graph_node: Node = {
               id: arrayItem.fromStation.id.toString(),
@@ -136,27 +110,27 @@ export class SearchResultComponent implements OnInit {
           });
 
           //Unique Nodes
-          this.nodes = tempNodes.filter(
-            (test, index, array) =>
-              index === array.findIndex((findTest) => findTest.id === test.id)
+          this.nodes = tempNodes.filter((test, index, array) =>
+            index === array.findIndex((findTest) =>
+                findTest.id === test.id
+            )
           );
-          this.loading = false;
+          
+          console.log(this.links);
+          console.log(this.nodes);
 
-          // console.log(this.links);
-          // console.log(this.nodes);
         } else {
-          this.loading = false;
-
-          this.snackBar.open(response.message, 'Error', {
+          this.snackBar.open(response.message, 'Failed', {
             duration: 1500,
           });
-
-          this.routee.navigate(['/home']);
+          
         }
+        this.loading = false;
       },
       (err) => {
         this.loading = false;
       }
     );
   }
+
 }

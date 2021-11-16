@@ -28,11 +28,15 @@ import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { SearchResultComponent } from './search-result/search-result.component';
 import { MatSnackBarModule} from '@angular/material/snack-bar';
+import { NgxGraphModule } from '@swimlane/ngx-graph';
+import { RouteConnectionComponent } from './route-connection/route-connection.component';
+import { AboutComponent } from './about/about.component';
 
 @NgModule({
-  declarations: [AppComponent, HomeComponent, NotFoundComponent, SearchResultComponent],
+  declarations: [AppComponent, HomeComponent, NotFoundComponent, SearchResultComponent, RouteConnectionComponent, AboutComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [
+    NgxGraphModule,
     MatSnackBarModule,
     BrowserModule,
     FormsModule,

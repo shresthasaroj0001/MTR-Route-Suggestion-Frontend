@@ -5,6 +5,14 @@ export class StationLink {
   duration: {
     totalSeconds: number;
   };
+  fromStation: {
+    id: number;
+    name: string;
+  };
+  toStation: {
+    id: number;
+    name: string;
+  };
   fromStationId: 8;
   toStationId: number;
 }

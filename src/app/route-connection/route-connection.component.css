@@ -8,7 +8,14 @@
       height: 500;
       width: 450;
       display: block;
+      margin-left: 3em;
     } 
+
+    .mat-card{
+      margin-left: 3em;
+      padding-left: 3em;
+    }
+    
       .name {
         font-size: 24px;
       }

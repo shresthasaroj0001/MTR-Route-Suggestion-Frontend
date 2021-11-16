@@ -21,9 +21,14 @@ export class DataManagerService {
     return this.http.get<responseObj>(environment.userAPIBase + 'routesearch/FindShortestRoute',{
       params : {
         from : passedParams.from.toString(),
-        to: passedParams.to.toString()
+        to: passedParams.to.toString(),
+        filterby : passedParams.filterby
       }
     });
+  }
+
+  getAllRoute(): Observable<responseObj> {
+    return this.http.get<responseObj>(environment.userAPIBase + 'routesearch/GetAllRoute');
   }
 
 }
